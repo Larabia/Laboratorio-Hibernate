@@ -19,18 +19,18 @@ public class AppHibernateABM {
 		System.out.println("SISTEMA DE PERSONAS (ABM)");
 		System.out.println("=========================");
 
-		Session session = HibernateABMUtil.getSessionFactory().openSession();
 		Scanner sc = new Scanner(System.in);
+		PersonaEntity per = new PersonaEntity();
 
 		int opcion = mostrarMenu(sc);
 		while (opcion != 0) {
 
 			switch (opcion) {
 			case 1:
-				alta(session, sc);
+				alta(per, sc);
 				break;
 			case 2:
-				modificacion(session, sc);
+				modificacion(per, sc);
 				break;
 			case 3:
 
@@ -54,8 +54,6 @@ public class AppHibernateABM {
 			opcion = mostrarMenu(sc);
 		}
 
-		HibernateABMUtil.shutdown();
-
 	}
 
 	private static int mostrarMenu(Scanner sc) {
@@ -68,9 +66,7 @@ public class AppHibernateABM {
 
 	// ALTA DE PERSONA
 
-	private static void alta(Session session, Scanner sc) {
-
-		PersonaEntity per = new PersonaEntity();
+	private static void alta(PersonaEntity per, Scanner sc) {
 
 		System.out.println("Ingrese nombre:");
 		String nombre = sc.next();
@@ -78,98 +74,91 @@ public class AppHibernateABM {
 		System.out.println("Ingrese fecha de nacimiento (aaaa-mm-dd):");
 		String feNacStng = sc.next();
 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date feNac = null;
+
 		try {
+			feNac = sdf.parse(feNacStng);
+			int edad = HibernateABMUtil.calcularEdad(feNac);
 
-			HPersonaDAO.ingresarPersona(session, feNacStng, nombre, per);
+			per.setNombre(nombre);
+			per.setEdad(edad);
+			per.setFeNac(feNac);
 
-			System.out.println("Los datos se cargaron exitosamente:");
-			HPersonaDAO.mostrarPersona(session, per);
-
+			HPersonaDAO.UpdatePersona(per);
 		} catch (ParseException e) {
 			System.out.println("La fecha ingresada es incorrecta.");
 		} catch (SQLException e) {
-			System.out.println("Error de coneccion con la base.");
-			e.printStackTrace();
+			System.out.println("Ha ocurrido un error de coneccion con la base.");
 		}
-
 	}
 
 	// 2.MODIFICACION DE PERSONA(METODO)
 
-	private static void modificacion(Session session, Scanner sc) {
+	private static void modificacion(PersonaEntity per, Scanner sc) {
 
 		System.out.println("Ingrese el ID que desea modificar:");
 		int id = sc.nextInt();
 
-		HPersonaDAO.mostrarXid(session, id);
+		per = HPersonaDAO.getPerXid(id);
+		mostrarPersona(sc, per);
 
 		System.out.println("ingrese la columna que desea modificar");
-		System.out.println("1.NOMBRE| 2.EDAD| 3.FECHA_NACIMIENTO|4.Salir");
-		int col = sc.nextInt();
-		
-		try {
-			while (col != 4) {
+		System.out.println("1.NOMBRE| 2.|FECHA_NACIMIENTO|3.Salir");
+		int option = sc.nextInt();
 
-				switch (col) {
+		while (option != 3) {
+			try {
+				switch (option) {
 				case 1:
 
 					System.out.println("ingrese nuevo nombre:");
 					String nomNew = sc.next();
-					HPersonaDAO.updateNombre(session, id, nomNew);
+					per.setNombre(nomNew);
+					HPersonaDAO.UpdatePersona(per);
 
 					break;
 
 				case 2:
-					System.out.println("ingrese nueva edad:");
-					int edadNew = sc.nextInt();
-					HPersonaDAO.updateEdad(session, id, edadNew);
-
-					// verifica si la fecha de nacimiento coincide con la edad nueva
-					Date fechaNac = HPersonaDAO.getFechaNac(session, id);
-					int edadBase = MetodosAccesorios.calcularEdad(fechaNac);
-					if (edadBase != edadNew) {
-						System.out.println("Actualice la fecha de nacimiento (aaaa-mm-dd):");
-						String feNew = sc.next();
-						HPersonaDAO.updateFechaNac(session, id, feNew);
-						Date feNac = HPersonaDAO.getFechaNac(session, id);
-						int edad = MetodosAccesorios.calcularEdad(feNac);
-						HPersonaDAO.updateEdad(session, id, edad);
-					}
-
-					break;
-
-				case 3:
 					System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
 					String feNew = sc.next();
-					HPersonaDAO.updateFechaNac(session, id, feNew);
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+					Date feNac = sdf.parse(feNew);
+					per.setFeNac(feNac);
 
-					// actualiza edad de acuerdo a la fecha de nacimiento
-					Date feNac = HPersonaDAO.getFechaNac(session, id);
-					int edad = MetodosAccesorios.calcularEdad(feNac);
-					HPersonaDAO.updateEdad(session, id, edad);
+					// actualiza edad de acuerdo a la nueva fecha de nacimiento
+					int edad = HibernateABMUtil.calcularEdad(feNac);
+					per.setEdad(edad);
 
-					break;
-
-				default:
-					break;
-
+					HPersonaDAO.UpdatePersona(per);
 				}
 
-				System.out.println("El usuario ha sido modificado exitosamente");
-				HPersonaDAO.mostrarXid(session, id);
-				
-				System.out.println("ingrese la columna que desea modificar");
-				System.out.println("1.NOMBRE| 2.EDAD| 3.FECHA_NACIMIENTO|4.Salir");
-				col = sc.nextInt();
-
+			} catch (ParseException e) {
+				System.out.println("La fecha ingresada es incorrecta.");
+			} catch (SQLException e) {
+				System.out.println("Ha ocurrido un error de coneccion con la base.");
 			}
 
+			break;
 
-		} catch (ParseException e) {
-			System.out.println("La fecha ingresada es incorrecta.");
-			modificacion(session, sc);
 		}
 
-	}
+		System.out.println("El usuario ha sido modificado exitosamente");
+		mostrarPersona(sc, per);
 
+		System.out.println("ingrese la columna que desea modificar");
+		System.out.println("1.NOMBRE| 2.FECHA_NACIMIENTO|3.Salir");
+		option = sc.nextInt();
+
+	}
+	
+
+	private static void mostrarPersona(Scanner sc, PersonaEntity per) {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String fNac = sdf.format(per.getFeNac());
+
+		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
+		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+	}
 }
