@@ -12,29 +12,27 @@ import hibernateABM.dto.PersonaEntity;
 
 public class HPersonaDAO {
 
-	public static void UpdatePersona(PersonaEntity per)
-			throws ParseException, SQLException {
-		
+	public static void updatePersona (PersonaEntity per){
+		 
 		Session session = HibernateABMUtil.getSessionFactory().openSession();
 		session.beginTransaction();
 		session.saveOrUpdate(per);
 		session.getTransaction().commit();
 		HibernateABMUtil.shutdown();
 
-
 	}
-
-	public static void mostrarPersona(PersonaEntity per) {
+	
+	public static void deletePersona(PersonaEntity per) {
 		
 		Session session = HibernateABMUtil.getSessionFactory().openSession();
 		session.beginTransaction();
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String fNac = sdf.format(per.getFeNac());
-		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+		session.delete(per);
+		session.getTransaction().commit();
 		HibernateABMUtil.shutdown();
+
+
 	}
+
 
 	public static PersonaEntity getPerXid(int id) {
 		
@@ -46,27 +44,4 @@ public class HPersonaDAO {
 		
 	}
 
-
-
-
-	public static Date getFechaNac(Session session, int id) {
-		session.beginTransaction();
-		PersonaEntity per =  (PersonaEntity) session.get(PersonaEntity.class, id);
-		Date fNac = per.getFeNac();
-		return fNac;
-	}
-
-	public static void updateFechaNac(Session session, int id, String feNew) throws ParseException {
-		
-		session.beginTransaction();
-		PersonaEntity per =  (PersonaEntity) session.get(PersonaEntity.class, id);
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date feNac = sdf.parse(feNew);
-
-		per.setFeNac(feNac);
-		
-		session.saveOrUpdate(per);
-		session.getTransaction().commit();
-	}
 }

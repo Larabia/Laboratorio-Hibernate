@@ -33,7 +33,7 @@ public class AppHibernateABM {
 				modificacion(per, sc);
 				break;
 			case 3:
-
+				baja(per, sc);
 				break;
 			case 4:
 
@@ -85,12 +85,13 @@ public class AppHibernateABM {
 			per.setEdad(edad);
 			per.setFeNac(feNac);
 
-			HPersonaDAO.UpdatePersona(per);
+			HPersonaDAO.updatePersona(per);
+			System.out.println("Los datos fueron ingresados exitosamente");
+			mostrarPersona(sc, per);
 		} catch (ParseException e) {
 			System.out.println("La fecha ingresada es incorrecta.");
-		} catch (SQLException e) {
-			System.out.println("Ha ocurrido un error de coneccion con la base.");
 		}
+
 	}
 
 	// 2.MODIFICACION DE PERSONA(METODO)
@@ -101,57 +102,93 @@ public class AppHibernateABM {
 		int id = sc.nextInt();
 
 		per = HPersonaDAO.getPerXid(id);
-		mostrarPersona(sc, per);
 
-		System.out.println("ingrese la columna que desea modificar");
-		System.out.println("1.NOMBRE| 2.|FECHA_NACIMIENTO|3.Salir");
-		int option = sc.nextInt();
+		if (per != null) {
+			System.out.println("El ID no existe elija una nuevo ID");
+			modificacion(per, sc);
 
-		while (option != 3) {
-			try {
-				switch (option) {
-				case 1:
+		} else {
 
-					System.out.println("ingrese nuevo nombre:");
-					String nomNew = sc.next();
-					per.setNombre(nomNew);
-					HPersonaDAO.UpdatePersona(per);
+			mostrarPersona(sc, per);
+
+			System.out.println("ingrese la columna que desea modificar");
+			System.out.println("1.NOMBRE| 2.|FECHA_NACIMIENTO|3.Salir");
+			int option = sc.nextInt();
+
+			while (option != 3) {
+				try {
+					switch (option) {
+					case 1:
+
+						System.out.println("ingrese nuevo nombre:");
+						String nomNew = sc.next();
+						per.setNombre(nomNew);
+						HPersonaDAO.updatePersona(per);
+
+						break;
+
+					case 2:
+						System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
+						String feNew = sc.next();
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+						Date feNac = sdf.parse(feNew);
+						per.setFeNac(feNac);
+
+						// actualiza edad de acuerdo a la nueva fecha de nacimiento
+						int edad = HibernateABMUtil.calcularEdad(feNac);
+						per.setEdad(edad);
+
+						HPersonaDAO.updatePersona(per);
+					}
+
+				} catch (ParseException e) {
+					System.out.println("La fecha ingresada es incorrecta.");
 
 					break;
 
-				case 2:
-					System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
-					String feNew = sc.next();
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-					Date feNac = sdf.parse(feNew);
-					per.setFeNac(feNac);
-
-					// actualiza edad de acuerdo a la nueva fecha de nacimiento
-					int edad = HibernateABMUtil.calcularEdad(feNac);
-					per.setEdad(edad);
-
-					HPersonaDAO.UpdatePersona(per);
 				}
 
-			} catch (ParseException e) {
-				System.out.println("La fecha ingresada es incorrecta.");
-			} catch (SQLException e) {
-				System.out.println("Ha ocurrido un error de coneccion con la base.");
+				System.out.println("El usuario ha sido modificado exitosamente");
+				mostrarPersona(sc, per);
+
+				System.out.println("ingrese la columna que desea modificar");
+				System.out.println("1.NOMBRE| 2.FECHA_NACIMIENTO|3.Salir");
+				option = sc.nextInt();
 			}
-
-			break;
-
 		}
-
-		System.out.println("El usuario ha sido modificado exitosamente");
-		mostrarPersona(sc, per);
-
-		System.out.println("ingrese la columna que desea modificar");
-		System.out.println("1.NOMBRE| 2.FECHA_NACIMIENTO|3.Salir");
-		option = sc.nextInt();
-
 	}
-	
+
+	// 3. BAJA DE PERSONA
+
+	private static void baja(PersonaEntity per, Scanner sc) {
+
+		System.out.println("Ingrese el ID que desea borrar:");
+		int id = sc.nextInt();
+
+		per = HPersonaDAO.getPerXid(id);
+
+		if (per != null) {
+			System.out.println("El ID no existe elija una nuevo ID");
+			modificacion(per, sc);
+		} else {
+			
+			mostrarPersona(sc, per);
+
+			System.out.println("Esta seguro de que desea borrar estos datos?");
+			System.out.println("1.SI| 2.NO");
+			int op = sc.nextInt();
+
+			if (op == 1) {
+
+				HPersonaDAO.deletePersona(per);
+
+				System.out.println("Los datos fueron borrados exitosamente");
+
+			} else {
+				mostrarMenu(sc);
+			}
+		}
+	}
 
 	private static void mostrarPersona(Scanner sc, PersonaEntity per) {
 
