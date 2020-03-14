@@ -1,14 +1,10 @@
 package hibernateABM;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
-import org.hibernate.Session;
-
 import hibernateABM.DAO.HPersonaDAO;
 import hibernateABM.dto.PersonaEntity;
 
@@ -36,7 +32,7 @@ public class AppHibernateABM {
 				baja(per, sc);
 				break;
 			case 4:
-
+				mostrarListado();
 				break;
 			case 5:
 
@@ -190,6 +186,19 @@ public class AppHibernateABM {
 		}
 	}
 
+	//LISTADO
+	private static void mostrarListado() {
+		
+		List<PersonaEntity>listadoPer = HPersonaDAO.getAllPersona();
+
+		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
+		for (PersonaEntity per : listadoPer) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			String fNac = sdf.format(per.getFeNac());
+			System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+		}
+	}
+	
 	private static void mostrarPersona(Scanner sc, PersonaEntity per) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
