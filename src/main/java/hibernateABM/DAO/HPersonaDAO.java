@@ -2,7 +2,11 @@ package hibernateABM.DAO;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+
 import hibernateABM.HibernateABMUtil;
 import hibernateABM.dto.PersonaEntity;
 
@@ -37,6 +41,19 @@ public class HPersonaDAO {
 		return per;
 
 	}
+	
+	public static List getPerXnombre(String busqueda) {
+
+		Session session = HibernateABMUtil.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria cr = session.createCriteria(PersonaEntity.class);
+		cr.add(Restrictions.like("NOMBRE", busqueda +"%"));
+		List results = cr.list();
+		HibernateABMUtil.shutdown();
+		return results;
+
+	}
+
 
 	public static List<PersonaEntity> getAllPersona() {
 		Session session = HibernateABMUtil.getSessionFactory().openSession();	

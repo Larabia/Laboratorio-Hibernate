@@ -1,5 +1,7 @@
 package hibernateABM;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 import hibernateABM.DAO.HPersonaDAO;
 import hibernateABM.dto.PersonaEntity;
+
 
 public class AppHibernateABM {
 
@@ -35,6 +38,7 @@ public class AppHibernateABM {
 				mostrarListado();
 				break;
 			case 5:
+				buscarXnombre(sc);
 
 				break;
 			case 6:
@@ -83,7 +87,7 @@ public class AppHibernateABM {
 
 			HPersonaDAO.updatePersona(per);
 			System.out.println("Los datos fueron ingresados exitosamente");
-			mostrarPersona(sc, per);
+			mostrarPersona(per);
 		} catch (ParseException e) {
 			System.out.println("La fecha ingresada es incorrecta.");
 		}
@@ -105,7 +109,7 @@ public class AppHibernateABM {
 
 		} else {
 
-			mostrarPersona(sc, per);
+			mostrarPersona(per);
 
 			System.out.println("ingrese la columna que desea modificar");
 			System.out.println("1.NOMBRE| 2.|FECHA_NACIMIENTO|3.Salir");
@@ -145,7 +149,7 @@ public class AppHibernateABM {
 				}
 
 				System.out.println("El usuario ha sido modificado exitosamente");
-				mostrarPersona(sc, per);
+				mostrarPersona(per);
 
 				System.out.println("ingrese la columna que desea modificar");
 				System.out.println("1.NOMBRE| 2.FECHA_NACIMIENTO|3.Salir");
@@ -168,7 +172,7 @@ public class AppHibernateABM {
 			modificacion(per, sc);
 		} else {
 			
-			mostrarPersona(sc, per);
+			mostrarPersona(per);
 
 			System.out.println("Esta seguro de que desea borrar estos datos?");
 			System.out.println("1.SI| 2.NO");
@@ -199,7 +203,27 @@ public class AppHibernateABM {
 		}
 	}
 	
-	private static void mostrarPersona(Scanner sc, PersonaEntity per) {
+	//BUSCAR POR NOMBRE
+	private static void buscarXnombre(Scanner sc) {
+
+			System.out.println();
+			System.out.println("BUSQUEDA POR NOMBRE");
+			System.out.println("-------------------");
+
+			System.out.println("Ingrese el nombre o las primeras letras:");
+			String busqueda = sc.next();
+			
+			List<PersonaEntity>resultadoBusqueda = HPersonaDAO.getPerXnombre(busqueda);
+			
+			System.out.println("ID|NOMBRE|EDAD|F.NACIM");
+			for (PersonaEntity per : resultadoBusqueda) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				String fNac = sdf.format(per.getFeNac());
+				System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+			}
+	}
+	
+	private static void mostrarPersona(PersonaEntity per) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String fNac = sdf.format(per.getFeNac());
