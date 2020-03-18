@@ -45,9 +45,8 @@ public class HPersonaDAO {
 	public static List getPerXnombre(String busqueda) {
 
 		Session session = HibernateABMUtil.getSessionFactory().openSession();
-		session.beginTransaction();
 		Criteria cr = session.createCriteria(PersonaEntity.class);
-		cr.add(Restrictions.like("NOMBRE", busqueda +"%"));
+		cr.add(Restrictions.like("nombre", busqueda +"%"));
 		List results = cr.list();
 		HibernateABMUtil.shutdown();
 		return results;

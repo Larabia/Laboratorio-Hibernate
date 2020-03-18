@@ -19,20 +19,19 @@ public class AppHibernateABM {
 		System.out.println("=========================");
 
 		Scanner sc = new Scanner(System.in);
-		PersonaEntity per = new PersonaEntity();
-
+		
 		int opcion = mostrarMenu(sc);
 		while (opcion != 0) {
 
 			switch (opcion) {
 			case 1:
-				alta(per, sc);
+				alta(sc);
 				break;
 			case 2:
-				modificacion(per, sc);
+				modificacion(sc);
 				break;
 			case 3:
-				baja(per, sc);
+				baja(sc);
 				break;
 			case 4:
 				mostrarListado();
@@ -66,24 +65,26 @@ public class AppHibernateABM {
 
 	// ALTA DE PERSONA
 
-	private static void alta(PersonaEntity per, Scanner sc) {
+	private static void alta(Scanner sc) {
 
 		System.out.println("Ingrese nombre:");
 		String nombre = sc.next();
 
 		System.out.println("Ingrese fecha de nacimiento (aaaa-mm-dd):");
-		String feNacStng = sc.next();
+		String fechaNacimientoStng = sc.next();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date feNac = null;
+		Date fechaNacimiento = null;
 
 		try {
-			feNac = sdf.parse(feNacStng);
-			int edad = HibernateABMUtil.calcularEdad(feNac);
+			fechaNacimiento = sdf.parse(fechaNacimientoStng);
+			int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
+			
+			PersonaEntity per = new PersonaEntity();
 
 			per.setNombre(nombre);
 			per.setEdad(edad);
-			per.setFeNac(feNac);
+			per.setFechaNacimiento(fechaNacimiento);
 
 			HPersonaDAO.updatePersona(per);
 			System.out.println("Los datos fueron ingresados exitosamente");
@@ -96,16 +97,17 @@ public class AppHibernateABM {
 
 	// 2.MODIFICACION DE PERSONA(METODO)
 
-	private static void modificacion(PersonaEntity per, Scanner sc) {
+	private static void modificacion(Scanner sc) {
 
 		System.out.println("Ingrese el ID que desea modificar:");
 		int id = sc.nextInt();
-
+		
+		PersonaEntity per = new PersonaEntity();
 		per = HPersonaDAO.getPerXid(id);
 
-		if (per != null) {
+		if (per == null) {
 			System.out.println("El ID no existe elija una nuevo ID");
-			modificacion(per, sc);
+			modificacion(sc);
 
 		} else {
 
@@ -129,13 +131,13 @@ public class AppHibernateABM {
 
 					case 2:
 						System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
-						String feNew = sc.next();
+						String fechaNew = sc.next();
 						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-						Date feNac = sdf.parse(feNew);
-						per.setFeNac(feNac);
+						Date fechaNacimiento = sdf.parse(fechaNew);
+						per.setFechaNacimiento(fechaNacimiento);
 
 						// actualiza edad de acuerdo a la nueva fecha de nacimiento
-						int edad = HibernateABMUtil.calcularEdad(feNac);
+						int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
 						per.setEdad(edad);
 
 						HPersonaDAO.updatePersona(per);
@@ -160,16 +162,17 @@ public class AppHibernateABM {
 
 	// 3. BAJA DE PERSONA
 
-	private static void baja(PersonaEntity per, Scanner sc) {
+	private static void baja(Scanner sc) {
 
 		System.out.println("Ingrese el ID que desea borrar:");
 		int id = sc.nextInt();
-
+		
+		PersonaEntity per = new PersonaEntity();
 		per = HPersonaDAO.getPerXid(id);
 
-		if (per != null) {
+		if (per == null) {
 			System.out.println("El ID no existe elija una nuevo ID");
-			modificacion(per, sc);
+			modificacion(sc);
 		} else {
 			
 			mostrarPersona(per);
@@ -196,10 +199,11 @@ public class AppHibernateABM {
 		List<PersonaEntity>listadoPer = HPersonaDAO.getAllPersona();
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-		for (PersonaEntity per : listadoPer) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			String fNac = sdf.format(per.getFeNac());
-			System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		for (PersonaEntity per : listadoPer) {		
+			String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+			System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 		}
 	}
 	
@@ -216,19 +220,20 @@ public class AppHibernateABM {
 			List<PersonaEntity>resultadoBusqueda = HPersonaDAO.getPerXnombre(busqueda);
 			
 			System.out.println("ID|NOMBRE|EDAD|F.NACIM");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			
 			for (PersonaEntity per : resultadoBusqueda) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				String fNac = sdf.format(per.getFeNac());
-				System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+				String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+				System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 			}
 	}
 	
 	private static void mostrarPersona(PersonaEntity per) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String fNac = sdf.format(per.getFeNac());
+		String fechaNacimiento = sdf.format(per.getFechaNacimiento());
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fNac);
+		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 	}
 }

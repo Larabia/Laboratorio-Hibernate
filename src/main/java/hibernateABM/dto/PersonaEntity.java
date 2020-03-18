@@ -30,7 +30,7 @@ public class PersonaEntity {
 	private Integer edad;
 	
 	@Column(name = "FECHA_NACIMIENTO", unique = false, nullable = false, length = 100)
-	private Date feNac;
+	private Date fechaNacimiento;
 
 	public Integer getPersonaId() {
 		return PersonaId;
@@ -56,12 +56,12 @@ public class PersonaEntity {
 		this.edad = edad;
 	}
 
-	public Date getFeNac() {
-		return feNac;
+	public Date getFechaNacimiento() {
+		return fechaNacimiento;
 	}
 
-	public void setFeNac(Date feNac) {
-		this.feNac = feNac;
+	public void setFechaNacimiento(Date fechaNacimiento) {
+		this.fechaNacimiento = fechaNacimiento;
 	}
 
 	public Integer getId() {
