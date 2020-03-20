@@ -12,7 +12,7 @@ import hibernateABM.dto.PersonaEntity;
 
 public class HPersonaDAO {
 
-	public static void updatePersona(PersonaEntity per) {
+	public static void saveOrUpdatePersona(PersonaEntity per) {
 
 		Session session = HibernateABMUtil.getSessionFactory().openSession();
 		session.beginTransaction();

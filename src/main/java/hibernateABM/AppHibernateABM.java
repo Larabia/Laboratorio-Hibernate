@@ -8,8 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import hibernateABM.DAO.HPersonaDAO;
+import hibernateABM.DAO.VentasDAO;
 import hibernateABM.dto.PersonaEntity;
-
+import hibernateABM.dto.VentasEntity;
 
 public class AppHibernateABM {
 
@@ -19,7 +20,7 @@ public class AppHibernateABM {
 		System.out.println("=========================");
 
 		Scanner sc = new Scanner(System.in);
-		
+
 		int opcion = mostrarMenu(sc);
 		while (opcion != 0) {
 
@@ -41,7 +42,7 @@ public class AppHibernateABM {
 
 				break;
 			case 6:
-
+				cargarVenta(sc);
 				break;
 			case 0:
 
@@ -79,14 +80,14 @@ public class AppHibernateABM {
 		try {
 			fechaNacimiento = sdf.parse(fechaNacimientoStng);
 			int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
-			
+
 			PersonaEntity per = new PersonaEntity();
 
 			per.setNombre(nombre);
 			per.setEdad(edad);
 			per.setFechaNacimiento(fechaNacimiento);
 
-			HPersonaDAO.updatePersona(per);
+			HPersonaDAO.saveOrUpdatePersona(per);
 			System.out.println("Los datos fueron ingresados exitosamente");
 			mostrarPersona(per);
 		} catch (ParseException e) {
@@ -101,12 +102,12 @@ public class AppHibernateABM {
 
 		System.out.println("Ingrese el ID que desea modificar:");
 		int id = sc.nextInt();
-		
+
 		PersonaEntity per = new PersonaEntity();
 		per = HPersonaDAO.getPerXid(id);
 
 		if (per == null) {
-			System.out.println("El ID no existe elija una nuevo ID");
+			System.out.println("El ID no existe ingrese un nuevo ID");
 			modificacion(sc);
 
 		} else {
@@ -125,7 +126,7 @@ public class AppHibernateABM {
 						System.out.println("ingrese nuevo nombre:");
 						String nomNew = sc.next();
 						per.setNombre(nomNew);
-						HPersonaDAO.updatePersona(per);
+						HPersonaDAO.saveOrUpdatePersona(per);
 
 						break;
 
@@ -140,7 +141,7 @@ public class AppHibernateABM {
 						int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
 						per.setEdad(edad);
 
-						HPersonaDAO.updatePersona(per);
+						HPersonaDAO.saveOrUpdatePersona(per);
 					}
 
 				} catch (ParseException e) {
@@ -166,15 +167,15 @@ public class AppHibernateABM {
 
 		System.out.println("Ingrese el ID que desea borrar:");
 		int id = sc.nextInt();
-		
+
 		PersonaEntity per = new PersonaEntity();
 		per = HPersonaDAO.getPerXid(id);
 
 		if (per == null) {
-			System.out.println("El ID no existe elija una nuevo ID");
+			System.out.println("El ID no existe ingrese un nuevo ID");
 			modificacion(sc);
 		} else {
-			
+
 			mostrarPersona(per);
 
 			System.out.println("Esta seguro de que desea borrar estos datos?");
@@ -193,39 +194,79 @@ public class AppHibernateABM {
 		}
 	}
 
-	//LISTADO
+	// LISTADO
 	private static void mostrarListado() {
-		
-		List<PersonaEntity>listadoPer = HPersonaDAO.getAllPersona();
+
+		List<PersonaEntity> listadoPer = HPersonaDAO.getAllPersona();
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		
-		for (PersonaEntity per : listadoPer) {		
+
+		for (PersonaEntity per : listadoPer) {
 			String fechaNacimiento = sdf.format(per.getFechaNacimiento());
-			System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
+			System.out
+					.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 		}
 	}
-	
-	//BUSCAR POR NOMBRE
+
+	// BUSCAR POR NOMBRE
 	private static void buscarXnombre(Scanner sc) {
 
-			System.out.println();
-			System.out.println("BUSQUEDA POR NOMBRE");
-			System.out.println("-------------------");
+		System.out.println();
+		System.out.println("BUSQUEDA POR NOMBRE");
+		System.out.println("-------------------");
 
-			System.out.println("Ingrese el nombre o las primeras letras:");
-			String busqueda = sc.next();
+		System.out.println("Ingrese el nombre o las primeras letras:");
+		String busqueda = sc.next();
+
+		List<PersonaEntity> resultadoBusqueda = HPersonaDAO.getPerXnombre(busqueda);
+
+		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+		for (PersonaEntity per : resultadoBusqueda) {
+			String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+			System.out
+					.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
+		}
+	}
+
+
+	// 6.CARGAR VENTA
+	private static void cargarVenta(Scanner sc) {
+
+		System.out.println("Ingrese ID del comprador:");
+		int idPersona = sc.nextInt();
+
+		PersonaEntity per = new PersonaEntity();
+		per = HPersonaDAO.getPerXid(idPersona);
+
+		if (per == null) {
+			System.out.println("El ID no existe ingrese un nuevo ID");
+			modificacion(sc);
+		} else {
 			
-			List<PersonaEntity>resultadoBusqueda = HPersonaDAO.getPerXnombre(busqueda);
-			
-			System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			
-			for (PersonaEntity per : resultadoBusqueda) {
-				String fechaNacimiento = sdf.format(per.getFechaNacimiento());
-				System.out.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
-			}
+			mostrarPersona(per);
+
+			System.out.println("Ingrese importe:");
+			int importe = sc.nextInt();
+
+			Date fechaVenta = new Date();
+			long ahoraLong = System.currentTimeMillis();
+			fechaVenta.setTime(ahoraLong);
+
+			VentasEntity venta = new VentasEntity();
+
+			venta.setPersonaEntity(per);
+			venta.setImporte(importe);
+			venta.setFechaVenta(fechaVenta);
+
+			VentasDAO.saveOrUpdateVenta(venta);
+			System.out.println("La venta fue ingresada exitosamente");
+			mostrarVenta(venta);
+
+		}
+
 	}
 	
 	private static void mostrarPersona(PersonaEntity per) {
@@ -236,4 +277,17 @@ public class AppHibernateABM {
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
 		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 	}
+	
+	private static void mostrarVenta(VentasEntity venta) {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String fechaVenta = sdf.format(venta.getFechaVenta());
+		PersonaEntity per = venta.getPersonaEntity();
+		int idPersona= per.getId();
+
+		System.out.println("ID|  FECHA   |IMPORTE|ID COMP");
+		System.out.println(venta.getVentaId() + " |" + fechaVenta+ "|" + venta.getImporte() + "  |" + idPersona);
+	}
+
+
 }
