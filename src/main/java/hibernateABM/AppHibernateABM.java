@@ -1,7 +1,5 @@
 package hibernateABM;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +33,7 @@ public class AppHibernateABM {
 				baja(sc);
 				break;
 			case 4:
-				mostrarListado();
+				mostrarListadoPersona();
 				break;
 			case 5:
 				buscarXnombre(sc);
@@ -43,6 +41,9 @@ public class AppHibernateABM {
 				break;
 			case 6:
 				cargarVenta(sc);
+				break;
+			case 7:
+				mostrarListadoVentas();
 				break;
 			case 0:
 
@@ -58,7 +59,7 @@ public class AppHibernateABM {
 
 	private static int mostrarMenu(Scanner sc) {
 		System.out.println(
-				"Menu opciones: 1- Alta |2- Modificacion |3- Baja |4- Listado |5- Buscar por nombre |6- Cargar venta |0- Salir");
+				"Menu opciones: 1- Alta |2- Modificacion |3- Baja |4- Listado Personas|5- Buscar por nombre |6- Cargar venta |7- Listado Ventas |0- Salir");
 
 		int opcion = sc.nextInt();
 		return opcion;
@@ -194,8 +195,8 @@ public class AppHibernateABM {
 		}
 	}
 
-	// LISTADO
-	private static void mostrarListado() {
+	//4. LISTADO
+	private static void mostrarListadoPersona() {
 
 		List<PersonaEntity> listadoPer = HPersonaDAO.getAllPersona();
 
@@ -209,7 +210,7 @@ public class AppHibernateABM {
 		}
 	}
 
-	// BUSCAR POR NOMBRE
+	//5. BUSCAR POR NOMBRE
 	private static void buscarXnombre(Scanner sc) {
 
 		System.out.println();
@@ -267,6 +268,24 @@ public class AppHibernateABM {
 
 		}
 
+	}
+	
+	// 7.LISTADO VENTA
+	
+	private static void mostrarListadoVentas() {
+
+		List<VentasEntity> listadoVenta = VentasDAO.getAllVentas();
+
+		System.out.println("ID|  FECHA   |IMPORTE|ID COMP");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+		for (VentasEntity venta : listadoVenta) {
+			PersonaEntity per = venta.getPersonaEntity();
+			int idPersona= per.getId();
+			String fechaVenta = sdf.format(venta.getFechaVenta());
+			System.out.println(venta.getVentaId() + " |" + fechaVenta+ "|" + venta.getImporte() + "  |" + idPersona);
+
+		}
 	}
 	
 	private static void mostrarPersona(PersonaEntity per) {
