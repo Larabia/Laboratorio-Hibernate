@@ -5,10 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+
 import hibernateABM.DAO.HPersonaDAO;
 import hibernateABM.DAO.VentasDAO;
-import hibernateABM.dto.PersonaEntity;
-import hibernateABM.dto.VentasEntity;
+import hibernateABM.Entity.PersonaEntity;
+import hibernateABM.Entity.VentasEntity;
+import hibernateABM.Util.DateUtil;
+import hibernateABM.Util.HibernateABMUtil;
 
 public class AppHibernateABM {
 
@@ -72,28 +75,28 @@ public class AppHibernateABM {
 		System.out.println("Ingrese nombre:");
 		String nombre = sc.next();
 
-		System.out.println("Ingrese fecha de nacimiento (aaaa-mm-dd):");
+		System.out.println("Ingrese fecha de nacimiento (dd/mm/yyyy):");
 		String fechaNacimientoStng = sc.next();
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date fechaNacimiento = null;
 
 		try {
-			fechaNacimiento = sdf.parse(fechaNacimientoStng);
-			int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
+			fechaNacimiento = DateUtil.formatParse(DateUtil.PATTERN_D2_M2_Y4, fechaNacimientoStng);
 
-			PersonaEntity per = new PersonaEntity();
-
-			per.setNombre(nombre);
-			per.setEdad(edad);
-			per.setFechaNacimiento(fechaNacimiento);
-
-			HPersonaDAO.saveOrUpdatePersona(per);
-			System.out.println("Los datos fueron ingresados exitosamente");
-			mostrarPersona(per);
 		} catch (ParseException e) {
 			System.out.println("La fecha ingresada es incorrecta.");
 		}
+
+		int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
+		PersonaEntity per = new PersonaEntity();
+
+		per.setNombre(nombre);
+		per.setEdad(edad);
+		per.setFechaNacimiento(fechaNacimiento);
+
+		HPersonaDAO.saveOrUpdatePersona(per);
+		System.out.println("Los datos fueron ingresados exitosamente");
+		mostrarPersona(per);
 
 	}
 
@@ -120,36 +123,35 @@ public class AppHibernateABM {
 			int option = sc.nextInt();
 
 			while (option != 3) {
-				try {
-					switch (option) {
-					case 1:
+				switch (option) {
+				case 1:
 
-						System.out.println("ingrese nuevo nombre:");
-						String nomNew = sc.next();
-						per.setNombre(nomNew);
-						HPersonaDAO.saveOrUpdatePersona(per);
-
-						break;
-
-					case 2:
-						System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
-						String fechaNew = sc.next();
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-						Date fechaNacimiento = sdf.parse(fechaNew);
-						per.setFechaNacimiento(fechaNacimiento);
-
-						// actualiza edad de acuerdo a la nueva fecha de nacimiento
-						int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
-						per.setEdad(edad);
-
-						HPersonaDAO.saveOrUpdatePersona(per);
-					}
-
-				} catch (ParseException e) {
-					System.out.println("La fecha ingresada es incorrecta.");
+					System.out.println("ingrese nuevo nombre:");
+					String nomNew = sc.next();
+					per.setNombre(nomNew);
+					HPersonaDAO.saveOrUpdatePersona(per);
 
 					break;
 
+				case 2:
+					System.out.println("Ingrese fecha nacimiento (aaaa-mm-dd):");
+					String fechaNew = sc.next();
+					Date fechaNacimiento = null;
+
+					try {
+						fechaNacimiento = DateUtil.formatParse(DateUtil.PATTERN_D2_M2_Y4, fechaNew);
+
+					} catch (ParseException e) {
+						System.out.println("La fecha ingresada es incorrecta.");
+					}
+
+					per.setFechaNacimiento(fechaNacimiento);
+
+					// actualiza edad de acuerdo a la nueva fecha de nacimiento
+					int edad = HibernateABMUtil.calcularEdad(fechaNacimiento);
+					per.setEdad(edad);
+
+					HPersonaDAO.saveOrUpdatePersona(per);
 				}
 
 				System.out.println("El usuario ha sido modificado exitosamente");
@@ -195,22 +197,21 @@ public class AppHibernateABM {
 		}
 	}
 
-	//4. LISTADO
+	// 4. LISTADO
 	private static void mostrarListadoPersona() {
 
 		List<PersonaEntity> listadoPer = HPersonaDAO.getAllPersona();
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		for (PersonaEntity per : listadoPer) {
-			String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+			String fechaNacimiento = DateUtil.formatSdf(DateUtil.PATTERN_D2_M2_Y4, per.getFechaNacimiento());
 			System.out
 					.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 		}
 	}
 
-	//5. BUSCAR POR NOMBRE
+	// 5. BUSCAR POR NOMBRE
 	private static void buscarXnombre(Scanner sc) {
 
 		System.out.println();
@@ -223,15 +224,13 @@ public class AppHibernateABM {
 		List<PersonaEntity> resultadoBusqueda = HPersonaDAO.getPerXnombre(busqueda);
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		for (PersonaEntity per : resultadoBusqueda) {
-			String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+			String fechaNacimiento = DateUtil.formatSdf(DateUtil.PATTERN_D2_M2_Y4, per.getFechaNacimiento());
 			System.out
 					.println(per.getPersonaId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 		}
 	}
-
 
 	// 6.CARGAR VENTA
 	private static void cargarVenta(Scanner sc) {
@@ -246,16 +245,14 @@ public class AppHibernateABM {
 			System.out.println("El ID no existe ingrese un nuevo ID");
 			modificacion(sc);
 		} else {
-			
+
 			mostrarPersona(per);
 
 			System.out.println("Ingrese importe:");
 			int importe = sc.nextInt();
 
-			Date fechaVenta = new Date();
-			long ahoraLong = System.currentTimeMillis();
-			fechaVenta.setTime(ahoraLong);
-
+			Date fechaVenta = DateUtil.currentDate();
+			
 			VentasEntity venta = new VentasEntity();
 
 			venta.setPersonaEntity(per);
@@ -263,50 +260,48 @@ public class AppHibernateABM {
 			venta.setFechaVenta(fechaVenta);
 
 			VentasDAO.saveOrUpdateVenta(venta);
+			
 			System.out.println("La venta fue ingresada exitosamente");
 			mostrarVenta(venta);
 
 		}
 
 	}
-	
+
 	// 7.LISTADO VENTA
-	
+
 	private static void mostrarListadoVentas() {
 
 		List<VentasEntity> listadoVenta = VentasDAO.getAllVentas();
 
 		System.out.println("ID|  FECHA   |IMPORTE|ID COMP");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
 
 		for (VentasEntity venta : listadoVenta) {
 			PersonaEntity per = venta.getPersonaEntity();
-			int idPersona= per.getId();
-			String fechaVenta = sdf.format(venta.getFechaVenta());
-			System.out.println(venta.getVentaId() + " |" + fechaVenta+ "|" + venta.getImporte() + "  |" + idPersona);
+			int idPersona = per.getId();
+			String fechaVenta = DateUtil.formatSdf(DateUtil.PATTERN_D2_M2_Y4_H_m2, venta.getFechaVenta());
+			System.out.println(venta.getVentaId() + " |" + fechaVenta + "|" + venta.getImporte() + "  |" + idPersona);
 
 		}
 	}
-	
-	private static void mostrarPersona(PersonaEntity per) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String fechaNacimiento = sdf.format(per.getFechaNacimiento());
+	private static void mostrarPersona(PersonaEntity per) {
+		
+		String fechaNacimiento = DateUtil.formatSdf(DateUtil.PATTERN_D2_M2_Y4, per.getFechaNacimiento());
 
 		System.out.println("ID|NOMBRE|EDAD|F.NACIM");
 		System.out.println(per.getId() + " " + per.getNombre() + " " + per.getEdad() + " " + fechaNacimiento);
 	}
-	
+
 	private static void mostrarVenta(VentasEntity venta) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String fechaVenta = sdf.format(venta.getFechaVenta());
+		String fechaVenta = DateUtil.formatSdf(DateUtil.PATTERN_D2_M2_Y4_H_m2, venta.getFechaVenta());
 		PersonaEntity per = venta.getPersonaEntity();
-		int idPersona= per.getId();
+		int idPersona = per.getId();
 
 		System.out.println("ID|  FECHA   |IMPORTE|ID COMP");
-		System.out.println(venta.getVentaId() + " |" + fechaVenta+ "|" + venta.getImporte() + "  |" + idPersona);
+		System.out.println(venta.getVentaId() + " |" + fechaVenta + "|" + venta.getImporte() + "  |" + idPersona);
 	}
-
 
 }

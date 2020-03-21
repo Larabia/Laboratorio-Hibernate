@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.hibernate.Session;
 
-import hibernateABM.HibernateABMUtil;
 import hibernateABM.Entity.PersonaEntity;
 import hibernateABM.Entity.VentasEntity;
+import hibernateABM.Util.HibernateABMUtil;
 
 public class VentasDAO {
 
