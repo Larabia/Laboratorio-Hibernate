@@ -6,8 +6,8 @@ import java.util.List;
 import org.hibernate.Session;
 
 import hibernateABM.HibernateABMUtil;
-import hibernateABM.dto.PersonaEntity;
-import hibernateABM.dto.VentasEntity;
+import hibernateABM.Entity.PersonaEntity;
+import hibernateABM.Entity.VentasEntity;
 
 public class VentasDAO {
 

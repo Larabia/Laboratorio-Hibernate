@@ -8,7 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import hibernateABM.HibernateABMUtil;
-import hibernateABM.dto.PersonaEntity;
+import hibernateABM.Entity.PersonaEntity;
 
 public class HPersonaDAO {
 
