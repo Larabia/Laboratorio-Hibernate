@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+ 
+   
+    <bean id="HPersonaDAO" class="hibernateABM.DAO.HPersonaDAO"/>
+    
+    <bean id="VentasDAO" class="hibernateABM.DAO.VentasDAO"/>
+    
+    <bean id="PersonaService" class="hibernateABM.Service.HPersonaService">
+     <property name="persona" ref="HPersonaDAO" />
+    </bean>
+    
+    <bean id="VentaService" class="hibernateABM.Service.VentaService">
+    <property name="venta" ref="VentasDAO" />
+    </bean>
+     
+    <bean id="fileHibernate" class="hibernateABM.Util.Config">
+    <property name="file" value="classpath:hibernate.cgf.xml" />
+    </bean>
+ 
+</beans>

@@ -12,6 +12,6 @@
         <property name="show_sql">true</property>
 		<property name="hbm2ddl.auto">update</property>
         <mapping class="hibernateABM.Entity.PersonaEntity"></mapping>
-        <mapping class="hibernateABM.Entity.VentaEntity"></mapping>
+        <mapping class="hibernateABM.Entity.VentasEntity"></mapping>
     </session-factory>
 </hibernate-configuration>
