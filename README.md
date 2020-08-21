@@ -12,6 +12,6 @@ _You can follow the progress of the proyect in https://trello.com/b/VJCuQfIH/tp-
 
 * [Maven](https://maven.apache.org/) - dependencies manager
 * [Hibernate](https://hibernate.org/) - framework 
-* [Junit](https://junit.org/junit4/) - unitary testing 
+* [Junit](https://junit.org/junit4/) - unit testing 
 * [mysql](https://www.mysql.com/products/workbench/) - Database service
 * [Eclipse](https://www.eclipse.org/downloads/) - IDE
